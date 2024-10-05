@@ -1,7 +1,7 @@
 
-const{ Web3 }= require('web3');
+const Web3 = require('web3');
 
-const web3 = new Web3("http://127.0.0.1:8545")
+const web3 = new Web3("http://127.0.0.1:7545")
 const transfer_funds = async (req, res) => {
     const { sender, receiver, amount } = req.body;
     try{
@@ -10,23 +10,13 @@ const transfer_funds = async (req, res) => {
       return res.status(400).send('Sender address, receiver address, and amount are required.');
     }
   
-    try {
-      const authToken = req.headers.authorization;
-      const jwt = require('jsonwebtoken');
-  
-      const secretKey = ``; // Using this as a secret key
-      const token1  = authToken // paste token here
-  
-      token_data=jwt.decode(token1,secretKey) 
-      if(token_data.role=="customer" && token_data.id!=undefined)
-      {
    accounts=await web3.eth.getAccounts( (err,docs)=>{
 
     if(err) console.log(err)
     if(docs) console.log("docs")
   });
 
-      
+    
      
       const nonce = await web3.eth.getTransactionCount(sender, 'latest');
       console.log(nonce)
@@ -39,20 +29,38 @@ const transfer_funds = async (req, res) => {
         gasPrice: web3.utils.toWei('10', 'gwei'),
         nonce: nonce,
       };
-      console.log(web3.eth.accounts.wallet.entries.toString())
+     
      
       r=await web3.eth.sendTransaction(transaction)
      
       res.status(200).send(`Transaction successful with hash: `+r.transactionHash);
-    }} catch (error) {
+    }
+     catch (error) {
       console.log(error)
       res.status(400).send(`Transaction failed: ${error.message}`);
     }
-    }catch(error){
-      res.status(400).send(`Transaction Unauthorized`);
-    }
+    
   }
+const create_funding_account = async(req,res)=>{
+    try{
+    account=web3.eth.accounts.create()
 
+    privateKey=account.privateKey
+    const existingAccount = web3.eth.accounts.privateKeyToAccount(privateKey);
+    console.log('Existing Account Address:', existingAccount.address);
+
+    // Add the existing account to the web3 instance
+    web3.eth.accounts.wallet.add(existingAccount);
+    accounts=await web3.eth.getAccounts( (err,docs)=>{
+
+      if(err) console.log(err)
+      if(docs) console.log(docs)
+    });
+    res.send(account)
+    }catch(error){
+      res.send(error)
+    }
+}
 module.exports={
-    transfer_funds
+    transfer_funds,create_funding_account
 }
