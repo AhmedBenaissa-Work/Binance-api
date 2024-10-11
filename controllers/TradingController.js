@@ -171,6 +171,9 @@ const response2 = await axios.get(url2, {
           
     }
 }
+const decrease_on_buy = async(req,res)=>{
+  
+}
 module.exports = {
     BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders
 }

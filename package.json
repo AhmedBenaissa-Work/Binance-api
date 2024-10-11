@@ -18,8 +18,12 @@
   "homepage": "https://github.com/AhmedBenaissa-Work/Binance-api#readme",
   "dependencies": {
     "@alpacahq/alpaca-trade-api": "^3.1.2",
+    "bcrypt": "^5.1.1",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
-    "fs": "^0.0.1-security"
+    "express": "^4.19.2",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.7.1"
   }
 }

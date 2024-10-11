@@ -1,11 +1,11 @@
 
 const Web3 = require('web3');
-
+const Wallet = require("../Models/wallet")
 const web3 = new Web3("http://127.0.0.1:7545")
 const transfer_funds = async (req, res) => {
     const { sender, receiver, amount } = req.body;
     try{
-    //broker_address=reciever
+    //sender address taken from metamask (done in front)
     if (!sender || !receiver || !amount) {
       return res.status(400).send('Sender address, receiver address, and amount are required.');
     }
@@ -29,11 +29,17 @@ const transfer_funds = async (req, res) => {
         gasPrice: web3.utils.toWei('10', 'gwei'),
         nonce: nonce,
       };
-     
+      
      
       r=await web3.eth.sendTransaction(transaction)
-     
-      res.status(200).send(`Transaction successful with hash: `+r.transactionHash);
+      const filter={address:receiver}
+        const update={ Balance : amount}
+        const output=await Wallet.findOne(filter)
+        if(output){
+        await Wallet.findOneAndUpdate(filter, update); 
+        res.status(200).send(`Transaction successful with hash: `+r.transactionHash);
+               }
+      
     }
      catch (error) {
       console.log(error)
