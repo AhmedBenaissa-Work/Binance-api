@@ -6,4 +6,5 @@ route.post("/sell",TradingController.SellStock)
 route.get("/orders",TradingController.getOrders)
 route.get("/orders/:id",TradingController.getOrderDetails)
 route.post("/balance",TradingController.checkBalanceAfterSale)
+route.post("/access",TradingController.get_access)
 module.exports=route

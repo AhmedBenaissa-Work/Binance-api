@@ -6,21 +6,27 @@ const bcrypt = require("bcrypt");
 const crypto = require('crypto');
 const Web3 = require('web3');
 
-const web3 = new Web3("http://127.0.0.1:7545")
+
 const generateSecret = () => {
   return crypto.randomBytes(64).toString('hex');
 };
 
 const createAccount = async (req, res) => {
   try {
-    account=web3.eth.accounts.create()
-    privateKey=account.privateKey
-    const existingAccount = web3.eth.accounts.privateKeyToAccount(privateKey);
-    web3.eth.accounts.wallet.add(existingAccount);
+    const { ethers } = require('ethers');
+
+// Create a Web3 instance connected to Infura
+const infuraProjectId = '97a8b6ce76cd44f29a3fa61b093524c1'; // Replace with your actual Project ID
+const infuraUrl = `https://holesky.infura.io/v3/${infuraProjectId}`;
+const web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+const newAccount = ethers.Wallet.createRandom();
+console.log("New Account Address:", newAccount.address);
+console.log("Private Key:", newAccount.privateKey);
+const infuraProvider = new ethers.JsonRpcProvider(infuraUrl);
+const walletWithProvider = new ethers.Wallet(newAccount.privateKey, infuraProvider);
+console.log(walletWithProvider)
     const newWallet = new Wallet({
-        address: account.address,
-  
-        
+        address: walletWithProvider.address,
         Balance : 0
       });
       const wallet = await newWallet.save();

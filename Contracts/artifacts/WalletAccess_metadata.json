@@ -1,0 +1,65 @@
+{
+	"compiler": {
+		"version": "0.8.26+commit.8a97fa7a"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					}
+				],
+				"name": "checkBalance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contract_files/wallet_access.sol": "WalletAccess"
+		},
+		"evmVersion": "cancun",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contract_files/wallet_access.sol": {
+			"keccak256": "0x0fae3a82a02974aae2d82bdde238711f20a813d4c9106a96396185d1b9d36be8",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://684fbeb39859a5425f82598e4bda7483665dfd26f6936cefba7b4e817eb63079",
+				"dweb:/ipfs/QmWkyTG7nBVBE4EphqFQrrVWcTTfbVg6ZT6YTUWpMcQMyV"
+			]
+		}
+	},
+	"version": 1
+}

@@ -5,7 +5,18 @@ env.config();
 
 // Check account information
 const axios = require('axios');
-
+const get_access = async(req,res) =>{
+     const crypto = require('crypto');
+     const secret = crypto.randomBytes(64).toString('hex');
+     const jwt = require("jsonwebtoken");
+     const token = jwt.sign({
+          id: req.body.account_id,
+          address : req.body.wallet_address,
+          balance : req.body.wallet_balance
+           
+        }, secret, { expiresIn: '1h' });
+     res.send(token)
+}
 const BuyStock = async(req,res)=>{
   const payload  = {
     method: 'POST',
@@ -24,11 +35,42 @@ const BuyStock = async(req,res)=>{
       qty: req.body.quantity
     }
   };
-  axios.request(payload).then(response => {
-    res.json(response.data);
-  }).catch(error => {
-    res.status(400).send(`Transaction failed:`,error);;
-  });
+  const authToken = req.headers.authorization;
+   const response = await axios.get('https://data.alpaca.markets/v2/stocks/'+req.body.symbol+'/trades/latest?feed=iex', 
+    {
+           
+       headers: {
+   
+             'APCA-API-KEY-ID': process.env.api_key,
+                
+             'APCA-API-SECRET-KEY': process.env.api_secret,
+ 
+             'Accept': 'application/json'
+            
+      }
+        
+
+     }
+  );
+
+         
+  console.log('Latest trade data:', response.data.trade.p);
+  secretKey = ""
+  const jwt = require("jsonwebtoken");
+  token_data=jwt.decode(authToken,secretKey)
+  console.log(token_data.balance)
+  if(token_data != undefined && token_data.balance > response.data.trade.p) //test purpose for now add verify account record in DB later
+  {
+     axios.request(payload).then(response => {
+     res.json(response.data);
+     }).catch(error => {
+     res.status(400).send(`Transaction failed:`,error);;
+     });
+  }
+  else
+  {
+   res.status(400).send(`Transaction failed unsufficient balance`);
+  }
 }
 const SellStock= async (req,res)=>{
     const payload  = {
@@ -175,7 +217,9 @@ const decrease_on_buy = async(req,res)=>{
   
 }
 module.exports = {
-    BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders
+    BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders,get_access 
 }
 
-
+//if(buyerid=0 and sellerid=0) : retrieve account id from token buyerid=accountid + buy stock case : buy == filled transfer ether to trader account of symbol tsla,aapl,intl....
+//if(buyerid!=0 and sellerid=0) sellerid=buyerid  seller is pending case : sale pending +sell stock
+//if(buyerid=0 and sellerid!=0) retrieve account id from token buyerid=accountid  case : buy == filled transfer ether from accountid to seller 
