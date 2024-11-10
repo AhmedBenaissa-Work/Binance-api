@@ -8,14 +8,15 @@ action: order.side,**/
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const OrderSchema = new Schema({
-    Account : {
+const P2PTransactionSchema = new Schema({
+    buyer : {
         type : Schema.Types.ObjectId ,
         ref : "accounts", 
         required : true
     },
-    order_id : {
-        type : String , 
+    seller : {
+        type : Schema.Types.ObjectId ,
+        ref : "accounts", 
         required : true
     },
     symbol : {
@@ -44,11 +45,7 @@ const OrderSchema = new Schema({
         type : String , 
         required : true,
         enum : ["sell","buy"]
-    },
-    type :{
-        type : String , 
-        required : true
     }
 });
-const Order = mongoose.model("orders", OrderSchema);
+const P2PTransaction = mongoose.model("P2PTransactions", OrderSchema);
 module.exports = Order;

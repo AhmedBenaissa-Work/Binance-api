@@ -1,72 +1,34 @@
 
 const Web3 = require('web3');
 const Wallet = require("../Models/wallet")
-const web3 = new Web3("http://127.0.0.1:7545")
-const transfer_funds = async (req, res) => {
-    const { sender, receiver, amount } = req.body;
-    try{
-    //sender address taken from metamask (done in front)
-    if (!sender || !receiver || !amount) {
-      return res.status(400).send('Sender address, receiver address, and amount are required.');
-    }
-  
-   accounts=await web3.eth.getAccounts( (err,docs)=>{
 
-    if(err) console.log(err)
-    if(docs) console.log("docs")
-  });
+const { ethers } = require('ethers');
 
-    
-     
-      const nonce = await web3.eth.getTransactionCount(sender, 'latest');
-      console.log(nonce)
-  
-      const transaction = {
-        from: sender,
-        to: receiver,
-        value: web3.utils.toWei(amount.toString(), 'ether'),
-        gas: 21000,
-        gasPrice: web3.utils.toWei('10', 'gwei'),
-        nonce: nonce,
-      };
-      
-     
-      r=await web3.eth.sendTransaction(transaction)
-      const filter={address:receiver}
-        const update={ Balance : amount}
-        const output=await Wallet.findOne(filter)
-        if(output){
-        await Wallet.findOneAndUpdate(filter, update); 
-        res.status(200).send(`Transaction successful with hash: `+r.transactionHash);
-               }
-      
-    }
-     catch (error) {
-      console.log(error)
-      res.status(400).send(`Transaction failed: ${error.message}`);
-    }
-    
+const fs = require('fs');
+ // Replace with your Infura API key
+const url = `https://holesky.infura.io/v3/97a8b6ce76cd44f29a3fa61b093524c1`;
+const Web3 = require('web3');
+const web3 = new Web3(url);
+const path = require('path');
+
+const artifactPath = path.join(__dirname, '../Binance-api-main/Contracts/artifacts/WalletAccess.json');
+const contractArtifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
+
+
+const contractABI = contractArtifact.abi;
+console.log(contractABI)
+const contractAddress = "0xba1452fd4ff870a0e986c2ce5898d97656d77115"
+const contract = new web3.eth.Contract(contractABI, contractAddress);
+const Get_Balance = async(req,res)=>{
+  try{
+  const address = req.body.address
+  const balance = await contract.methods.checkBalance(address).call();
+  res.send(balance)
   }
-const create_funding_account = async(req,res)=>{
-    try{
-    account=web3.eth.accounts.create()
-
-    privateKey=account.privateKey
-    const existingAccount = web3.eth.accounts.privateKeyToAccount(privateKey);
-    console.log('Existing Account Address:', existingAccount.address);
-
-    // Add the existing account to the web3 instance
-    web3.eth.accounts.wallet.add(existingAccount);
-    accounts=await web3.eth.getAccounts( (err,docs)=>{
-
-      if(err) console.log(err)
-      if(docs) console.log(docs)
-    });
-    res.send(account)
-    }catch(error){
-      res.send(error)
-    }
-}
+  catch(error){
+    res.status(400).send(error);
+  }
+} 
 module.exports={
-    transfer_funds,create_funding_account
+    Get_Balance
 }
