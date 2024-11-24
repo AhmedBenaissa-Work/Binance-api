@@ -1,6 +1,6 @@
 const express = require("express");
 const route = express.Router();
-const FundingController = require("../Controllers/FundingController")
+const FundingController = require("../controllers/FundingController")
 
 route.post("/balance",FundingController.Get_Balance)
 

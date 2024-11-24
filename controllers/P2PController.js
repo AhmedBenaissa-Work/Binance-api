@@ -20,7 +20,7 @@ const P2P_sell = async(req,res)=>{
         symbol:req.body.symbol,
         quantity:req.body.qty,
         price:req.body.filled_avg_price,
-        action:"buy",
+     //   action:"buy",
         status:'pending'
     })
     peer_to_peer_transaction.save()
@@ -62,5 +62,5 @@ const confirm_sell = async(req,res)=>{
 
 }
 module.exports = {
-    P2P_sell
+    P2P_sell,confirm_sell
 }

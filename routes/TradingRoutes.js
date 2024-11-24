@@ -1,6 +1,6 @@
 const express = require("express");
 const route = express.Router();
-const TradingController = require("../Controllers/TradingController")
+const TradingController = require("../controllers/TradingController")
 route.post("/buy",TradingController.BuyStock)
 route.post("/sell",TradingController.SellStock)
 route.get("/orders",TradingController.getOrders)
