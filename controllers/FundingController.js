@@ -26,27 +26,30 @@ const Get_Balance = async(req,res)=>{
   x=balance.toString().substr(0, (balance.toString().length))
   const weiPerEth = BigInt(10 ** 18);
   console.log(parseFloat(Number(x)/(10**18)))
-  const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
-  const data = await response.json();
-  
-  const filter={address:address}
-  console.log(balance)
-  const update={
-
-    Balance:data.ethereum.usd*parseFloat(Number(x)/(10**18))
-    }
+  const filter={address:req.body.address}
   const output=await Wallet.findOne(filter)
-  if(output){
-    await Wallet.findOneAndUpdate(filter, update); 
-  }
+  console.log(output)  
+  
 
-  res.send({"eth":parseFloat(Number(x)/(10**18)),"usd":data.ethereum.usd*parseFloat(Number(x)/(10**18))})
+  res.send({"eth":parseFloat(Number(x)/(10**18)),'usd':output.Balance})
   }
   catch(error){
     console.log(error)
     res.status(400).send(error);
   }
+}
+const update_balance_once_funded = async(req,res)=>{
+  const filter={address:req.body.address}
+  console.log(balance)
+  const update={
+
+    Balance:req.body.Balance
+    }
+  const output=await Wallet.findOne(filter)
+  if(output){
+    await Wallet.findOneAndUpdate(filter, update); 
+  }
 } 
 module.exports={
-    Get_Balance
+    Get_Balance,update_balance_once_funded
 }

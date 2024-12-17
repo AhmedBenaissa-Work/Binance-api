@@ -6,6 +6,7 @@ const order = require("../Models/order")
 const p2p = require("../Models/P2Ptransaction")
 // Check account information
 const axios = require('axios');
+const { resolveMx } = require('dns');
 const get_access = async(req,res) =>{
      const crypto = require('crypto');
      const secret = crypto.randomBytes(64).toString('hex');
@@ -54,31 +55,60 @@ const BuyStock = async(req,res)=>{
 
          
   console.log('Latest trade data:', response.data.trade.p);
+  const latestTrade=response.data.trade.p
   secretKey = ""
   const jwt = require("jsonwebtoken");
   token_data=jwt.decode(authToken,secretKey)
-  console.log(token_data.balance)
-  if(token_data != undefined && token_data.balance > response.data.trade.p) //test purpose for now add verify account record in DB later
+   
+  if(token_data != undefined && req.body.balance > response.data.trade.p) //test purpose for now add verify account record in DB later
   {
      axios.request(payload).then( async (response) => {
+      console.log(response.status)
+      console.log(response.data)
+      if(response.data.filled_avg_price == undefined){
+        const  Order = new order ({
+          Account:token_data.id,
+          symbol:response.data.symbol,
+          status:response.data.status,
+          order_id:response.data.id,
+          quantity:response.data.qty,
+          price:latestTrade,
+          action:"buy",
+          type:response.data.type
+        })
+        try{
+          await Order.save()
+         res.send(response.data);
+          }catch(error){
+            console.log(error)
+            res.send(`Transaction failed I:`,error);   
+          }  
+      }
+      else{
       const  Order = new order ({
-        Account:token_data.account_id,
+        Account:token_data.id,
         symbol:response.data.symbol,
         status:response.data.status,
-        id:response.data.id,
+        order_id:response.data.id,
         quantity:response.data.qty,
         price:response.data.filled_avg_price,
         action:"buy",
         type:response.data.type
       })
+      console.log(order)
       try{
-      await Order.save()
-     res.json(response.data);
-      }catch(error){
-        res.status(400).send(`Transaction failed I:`,error);   
-      }
+        
+        await Order.save()
+       res.send(response.data);
+        }catch(error){
+          console.log(error)
+          res.send(error);   
+        }
+    }
+      
      }).catch(error => {
-     res.status(400).send(`Transaction failed II:`,error);
+      console.log(error)
+     res.send(error);
      });
   }
   else
@@ -104,6 +134,12 @@ const SellStock= async (req,res)=>{
           qty: req.body.quantity
         }
       };
+      secretKey = ""
+  const jwt = require("jsonwebtoken");
+  token_data=jwt.decode(authToken,secretKey)
+  console.log(token_data.balance)
+  if(token_data != undefined  ) //test purpose for now add verify account record in DB later
+  {
       axios.request(payload).then( async (response) => {
         const  Order = new order ({
           Account:token_data.account_id,
@@ -123,9 +159,18 @@ const SellStock= async (req,res)=>{
         }
        }).catch(error => {
        res.status(400).send(`Transaction failed II:`,error);
-       });    
+       });    }
+       else {
+        res.status(400).send(`Unauthorized:`,error);
+       }
 }
 const getOrderDetails =  async(req,res)=>{
+  const jwt = require("jsonwebtoken");
+  token_data=jwt.decode(authToken,secretKey)
+  console.log(token_data.balance)
+  if(token_data == undefined  ) //test purpose for now add verify account record in DB later
+  {res.status(400).send(`Unauthorized`);}
+  else{
   try 
     {
      const BASE_URL = 'https://paper-api.alpaca.markets'; // Change to the live API URL for live trading
@@ -151,7 +196,7 @@ const getOrderDetails =  async(req,res)=>{
     {
       res.status(400).send(`Transaction failed: ${error.message}`);
     }
-}
+}}
 const get_and_update_order_status =  async(req,res)=>{
   try 
     {
@@ -280,11 +325,41 @@ const response2 = await axios.get(url2, {
           
     }
 }
+const getAllAssets = async(req,res)=>{
+  const authToken = req.headers.authorization;
+  secretKey=''
+  const jwt = require("jsonwebtoken");
+  
+  token_data=jwt.decode(authToken,secretKey)
+  console.log(token_data.balance)
+  if(token_data == undefined  ) //test purpose for now add verify account record in DB later
+  {res.status(400).send(`Unauthorized`);}
+  else{
 
+  const alpacaClient = axios.create({
+    baseURL: 'https://data.alpaca.markets/v2',
+    headers: {
+      'APCA-API-KEY-ID': process.env.api_key,
+      'APCA-API-SECRET-KEY': process.env.api_secret,
+    },
+  });
+  try {
+    const response = await alpacaClient.get('https://paper-api.alpaca.markets/v2/assets?exchange='+req.body.exchange);
+    const assets = response.data;
+
+    // Filter for active and tradable assets
+    const tradableAssets = assets.filter((asset) => asset.tradable );
+    console.log(`Total tradable assets: ${tradableAssets.length}`);
+    res.json(tradableAssets.map((asset) => asset.symbol));
+  } catch (error) {
+    console.error('Error fetching tradable assets:', error.response?.data || error.message);
+    res.json(error.message);
+  }
+  }}
 module.exports = {
-    BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders,get_access,get_and_update_order_status
+    BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders,get_access,get_and_update_order_status,getAllAssets
 }
-
+"https://data.alpaca.markets/v2/stocks/bars/latest?symbols=AAPL&feed=iex"
 //if(buyerid=0 and sellerid=0) : retrieve account id from token buyerid=accountid + buy stock case : buy == filled transfer ether to trader account of symbol tsla,aapl,intl....
 //if(buyerid!=0 and sellerid=0) sellerid=buyerid  seller is pending case : sale pending +sell stock
 //if(buyerid=0 and sellerid!=0) retrieve account id from token buyerid=accountid  case : buy == filled transfer ether from accountid to seller 

@@ -6,6 +6,8 @@ import Register from './Pages/register';
 import {BrowserRouter,Route,Routes} from 'react-router-dom'
 import Transfer_Funds from './Pages/transfer_funds';
 import ConfirmAccount from './Pages/confirm_account';
+import Dashboard from './Pages/Dashbord';
+import Login from './Pages/login';
 
 function App() {
   return (
@@ -17,6 +19,12 @@ function App() {
     <Route exact path="/sign_up"
           element={<Register/>}
         />
+    <Route exact path="/login"
+          element={<Login/>}
+        />
+    <Route exact path='/dashboard'
+      element = {<Dashboard></Dashboard>}
+    />    
     <Route exact path="/transfer_funds"
           element={<Transfer_Funds/>}
         />
