@@ -1,8 +1,8 @@
-import Table from "../Components/Table";
-import NavBar from "../Components/NavBar";
-import Sidebar from "../Components/SideBar";
+import Table from "../../Components/Table";
+import NavBar from "../../Components/NavBar";
+import Sidebar from "../../Components/SideBar";
 import { useEffect, useState } from "react";
-import * as apiService from "../Services/Trading_api_service";
+import * as apiService from "../../Services/Trading_api_service";
 
 export default function Dashboard()
 {
@@ -46,7 +46,7 @@ export default function Dashboard()
             
             <NavBar></NavBar>
             <div className="container-fluid">
-                <Table columns={columns}  data={rows} rowsPerPageOptions={[10,20]} > </Table>
+                <Table columns={columns}  data={rows} type={'buy'} rowsPerPageOptions={[10,20]  } > </Table>
             </div>
             </div></div>
         </div>)

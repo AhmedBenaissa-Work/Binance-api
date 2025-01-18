@@ -66,7 +66,38 @@ const stock_market_data = async(req,res)=>{
         res.status(400).send(error);
     }
 }
+const sticks = async (req,res)=>{
+  const authToken = req.headers.authorization;
+  
+  if(authToken!=undefined){
+    try{
+   const response = await axios.get('https://data.alpaca.markets/v2/stocks/'+req.body.symbol+'/bars?timeframe='+req.body.timeframe+'&start='+req.body.start+'&end='+req.body.end+'&limit=1000&adjustment=raw&feed=sip&sort=asc',
+    {
+           
+       headers: {
+   
+             'APCA-API-KEY-ID': process.env.api_key,
+                
+             'APCA-API-SECRET-KEY': process.env.api_secret,
+ 
+             'Accept': 'application/json'
+            
+      }
+     }
 
+  );
+  console.log(response)
+  res.send(response.data)}
+  catch(error){
+    console.log(error)
+    res.send(error)
+  }}
+else{
+  res.status(400).send("unauthorized")
+}
+         
+  
+}
 module.exports= {
-    stock_market_data
+    stock_market_data,sticks
 }

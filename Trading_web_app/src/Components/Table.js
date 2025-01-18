@@ -11,9 +11,12 @@ import {
 } from "@mui/material";
 import { jwtDecode } from 'jwt-decode' 
 import * as apiService from "../Services/Trading_api_service";
+import { useNavigate } from 'react-router-dom';
 
-const CustomizableTable = ({ columns, data, rowsPerPageOptions = [2, 5, 10] }) => {
+
+const CustomizableTable = ({ columns, data, rowsPerPageOptions = [2, 5, 10] , type }) => {
   const [page, setPage] = useState(0);
+  const navigate=useNavigate()
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [address, setAddress] = useState("");
   const [balance,setBalance]=useState(0)
@@ -25,10 +28,7 @@ const CustomizableTable = ({ columns, data, rowsPerPageOptions = [2, 5, 10] }) =
       const user = jwtDecode(token)
       console.log(user)
       setAddress(user.address)
-      apiService.get_balance(localStorage.token,user.address).then((res)=>{
-        console.log(res)
-        setBalance(res.usd)
-      },[])    
+   
   })
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -42,8 +42,14 @@ const CustomizableTable = ({ columns, data, rowsPerPageOptions = [2, 5, 10] }) =
     apiService.buy_stock(localStorage.token,balance,row.symbol,1).then((res)=>{
       console.log(res)
     })
+    navigate("/buy_stock",{ state: { data:row } })
   };
-
+  const Sell_stock = (row) => {
+    
+    apiService.sell_stock(localStorage.token,row.symbol,1).then((res)=>{
+      console.log(res)
+    })
+  };
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -69,7 +75,10 @@ const CustomizableTable = ({ columns, data, rowsPerPageOptions = [2, 5, 10] }) =
                     {row[column.field]}
                   </TableCell>
                 ))}
-                 <button className="btn btn-dark" onClick={() => Buy_stock(row)}>Buy Stock</button>
+                { type === 'buy' ? (<button className="btn btn-dark" onClick={() => Buy_stock(row)}>Buy Stock</button>):(
+                  <button className="btn btn-dark" onClick={() => Sell_stock(row)}>Sell Stock</button>
+                )}
+                 
               </TableRow>
             ))}
         </TableBody>

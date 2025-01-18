@@ -37,8 +37,7 @@ const OrderSchema = new Schema({
     },
     status : {
         type : String , 
-        required : true,
-        enum : ["filled","done"]
+        required : true
     },
     action : {
         type : String , 

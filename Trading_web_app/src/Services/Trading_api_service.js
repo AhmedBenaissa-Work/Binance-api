@@ -23,10 +23,50 @@ export const buy_stock = async (authToken,balance,symbol,quantity) => {
         throw error;
     }
 };
-
+export const get_stock_market_data_sticks = async(authToken,symbol,timeFrame,start,end) => {
+    try {
+        const headers = {
+            "authorization":authToken
+          }
+        const response = await axios.post('/api/trading/sticks',{'symbol':symbol,"timeframe":timeFrame,'start':start,'end':end}, {  headers: headers}); // Relative URL
+        return response.data;
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
+}
+export const sell_stock = async (authToken,symbol,quantity) => {
+    try {
+        const headers = {
+            "authorization":authToken
+          }
+        const response = await axios.post('/api/trading/sell',{'symbol':symbol,"quantity":quantity}, {  headers: headers}); // Relative URL
+        return response.data;
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
+};
 export const get_balance= async (authToken,address) => {
     try {
-        const response = await axios.post('/api/fund/balance',{'address':address}, {headers:authToken}); // Relative URL
+        const headers = {
+            "authorization":authToken
+          }
+        const response = await axios.post('/api/fund/balance',{'address':address}, {headers:headers}); // Relative URL
+        return response.data;
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
+};
+export const orders= async (authToken) => {
+    console.log(authToken)
+    try {
+        const headers = {
+            "authorization":authToken
+          }
+
+        const response = await axios.post('/api/trading/orders',{}, {headers:headers}); // Relative URL
         return response.data;
     } catch (error) {
         console.error('Error creating user:', error);

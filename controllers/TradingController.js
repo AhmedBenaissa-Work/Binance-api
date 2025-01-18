@@ -134,20 +134,40 @@ const SellStock= async (req,res)=>{
           qty: req.body.quantity
         }
       };
+      const authToken = req.headers.authorization;    
       secretKey = ""
   const jwt = require("jsonwebtoken");
   token_data=jwt.decode(authToken,secretKey)
-  console.log(token_data.balance)
+ // console.log(token_data.balance)
   if(token_data != undefined  ) //test purpose for now add verify account record in DB later
-  {
+  {   
       axios.request(payload).then( async (response) => {
+        console.log(response)
+        const response1 = await axios.get('https://data.alpaca.markets/v2/stocks/'+req.body.symbol+'/trades/latest?feed=iex', 
+          {
+                 
+             headers: {
+         
+                   'APCA-API-KEY-ID': process.env.api_key,
+                      
+                   'APCA-API-SECRET-KEY': process.env.api_secret,
+       
+                   'Accept': 'application/json'
+                  
+            }
+           }
+        );
+      
+               
+        console.log('Latest trade data:', response1.data.trade.p);
         const  Order = new order ({
-          Account:token_data.account_id,
+          Account:token_data.id,
           id:response.data.id,
           symbol:response.data.symbol,
           status:response.data.status,
+          order_id:response.data.id,
           quantity:response.data.qty,
-          price:response.data.filled_avg_price,
+          price:response1.data.trade.p,
           action:"sell",
           type:response.data.type
         })
@@ -155,6 +175,7 @@ const SellStock= async (req,res)=>{
         await Order.save()
        res.json(response.data);
         }catch(error){
+          console.log(error)
           res.status(400).send(`Transaction failed I:`,error);   
         }
        }).catch(error => {
@@ -166,8 +187,9 @@ const SellStock= async (req,res)=>{
 }
 const getOrderDetails =  async(req,res)=>{
   const jwt = require("jsonwebtoken");
-  token_data=jwt.decode(authToken,secretKey)
-  console.log(token_data.balance)
+  const authToken = req.headers.authorization;
+  token_data=jwt.decode(authToken,'')
+  
   if(token_data == undefined  ) //test purpose for now add verify account record in DB later
   {res.status(400).send(`Unauthorized`);}
   else{
@@ -175,7 +197,7 @@ const getOrderDetails =  async(req,res)=>{
     {
      const BASE_URL = 'https://paper-api.alpaca.markets'; // Change to the live API URL for live trading
      const orderId = req.params.orderID;
-     url=`${BASE_URL}/v2/orders/${orderId}`
+     url=`${BASE_URL}/v2/orders/`+orderId
      const response = await axios.get(url, {
       headers: {
         'APCA-API-KEY-ID': process.env.api_key,
@@ -184,7 +206,7 @@ const getOrderDetails =  async(req,res)=>{
         'content-type': 'application/json'
       }
       });
-
+     console.log(response)
      const orderData = response.data;
      const status = orderData.status;
      const qty = orderData.qty;
@@ -217,13 +239,36 @@ const get_and_update_order_status =  async(req,res)=>{
      const qty = orderData.qty;
      const orderType = orderData.side;
      const price = orderData.filled_avg_price;
+
+     const date = new Date(String(orderData.created_at)); // Replace with your date
+
+// Array of day names
+const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+// Get day index (0 = Sunday, 6 = Saturday)
+const dayIndex = date.getDay();
+
+// Get the day name
+const dayName = days[dayIndex];
+
+console.log(dayName)
      try {
-      const result = await Order.updateOne(
+      if(dayName=='Sunday' || dayName=='Saturday'){
+        const result = await order.updateOne(
+          { order_id: orderId }, // Filter condition
+          { $set: { status: orderData.status , price:price } } // Update operation
+        );
+        console.log(result);
+        res.send({'Status': status, 'Amount': price, 'Type': orderType ,"Quantity": qty});
+      }
+      else{
+      const result = await order.updateOne(
         { order_id: orderId }, // Filter condition
         { $set: { status: orderData.status } } // Update operation
       );
       console.log(result);
       res.send({'Status': status, 'Amount': price, 'Type': orderType ,"Quantity": qty});
+    }
     } catch (error) {
       console.error(error);
       res.status(400).send(`Transaction failed I: ${error.message}`);
@@ -356,8 +401,24 @@ const getAllAssets = async(req,res)=>{
     res.json(error.message);
   }
   }}
+const GetOrdersByUser = async(req,res)=>{
+  try{
+  const authToken = req.headers.authorization;
+  secretKey=''
+  const jwt = require("jsonwebtoken");
+  
+  token_data=jwt.decode(authToken,secretKey)
+  console.log(token_data)
+  const response =await order.find({Account:token_data.id})
+  res.json(response)
+  }catch(error){
+    console.log(error)
+    res.json({"error":400,'error':error})
+  }
+}
+
 module.exports = {
-    BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders,get_access,get_and_update_order_status,getAllAssets
+    BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders,get_access,get_and_update_order_status,getAllAssets,GetOrdersByUser
 }
 "https://data.alpaca.markets/v2/stocks/bars/latest?symbols=AAPL&feed=iex"
 //if(buyerid=0 and sellerid=0) : retrieve account id from token buyerid=accountid + buy stock case : buy == filled transfer ether to trader account of symbol tsla,aapl,intl....
