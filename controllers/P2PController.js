@@ -1,5 +1,5 @@
 const P2PTransaction = require("../Models/P2Ptransaction")
-//const p2p = require("../Models/P2Ptransaction")
+
 
 
 const P2P_sell = async(req,res)=>{

@@ -3,8 +3,13 @@
 
 const fs = require('fs');
  // Replace with your Infura API key
-const url = `https://holesky.infura.io/v3/97a8b6ce76cd44f29a3fa61b093524c1`;
-const {Web3} = require('web3');
+ const env = require("dotenv");
+ env.config();
+ const url = process.env.Infura_network;
+ const {Web3} = require('web3');
+
+ 
+
 const web3 = new Web3(url);
 const path = require('path');
 
@@ -21,7 +26,7 @@ const Get_Balance = async(req,res)=>{
   const address = req.body.address
   console.log(address)
   console.log(web3.utils.toChecksumAddress(address));
-  const balance = await contract.methods.checkBalance("0x313915aF61cF3d5e6c8DF07bBab46D4b353957D9").call();
+  const balance = await contract.methods.checkBalance(address).call();
   console.log(`Balance of ${address}: ${balance} wei`);
   x=balance.toString().substr(0, (balance.toString().length))
   const weiPerEth = BigInt(10 ** 18);
