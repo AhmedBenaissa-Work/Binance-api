@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react"
-import * as apiService from "../Services/Auth_api_service";
+import * as apiService from "../Services/auth_api_service";
 import {Navigate, useNavigate} from "react-router-dom"
 export default function Login(){
    
@@ -23,12 +23,18 @@ export default function Login(){
         }
         
         console.log(userData)
-        apiService.login(userData).then((response)=>{
+        apiService.login(userData).then((resp)=>{
+        apiService.getUserData().then((response)=>{
+            console.log(response)
            
-           console.log(response)
-           
-                localStorage.setItem('token',response)
+                sessionStorage.setItem('token',resp.token)
+                sessionStorage.setItem('user_token',resp.user_token)
+                sessionStorage.setItem('user_main_id',resp.user_main_id)
+                sessionStorage.setItem("card_id",resp.card_id)
                 navigate('/dashboard')
+
+        })
+           
               
            
             

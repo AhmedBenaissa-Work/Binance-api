@@ -28,11 +28,17 @@ export default function Dashboard()
 
   useEffect(()=>{
     const token=localStorage.token;
+    const fetchData = () => {
     apiService.get_stock_market_data(token,symbols).then((response)=>{
          console.log(response)
          setRows(response)         
 
     })
+  }
+    fetchData()
+    const interval = setInterval(fetchData, 10000); // Refresh every 10 seconds
+
+  return () => clearInterval(interval); // Clean up on unmount
   },[])
 
     return ( <div id="wrapper">

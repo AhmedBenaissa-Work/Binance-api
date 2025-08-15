@@ -20,3 +20,12 @@ export const login = async (userData) => {
         throw error;
     }
 };
+export const getUserData = async () => {
+    try {
+        const response = await axios.post('/api/accounts/get_cookie_data', {}); // Relative URL
+        return response.data;
+    } catch (error) {
+        console.error('Error creating user:', error);
+        throw error;
+    }
+};

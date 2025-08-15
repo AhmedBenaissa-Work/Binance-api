@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react"
-import * as apiService from "../Services/Auth_api_service";
+import * as apiService from "../Services/auth_api_service";
 export default function Register(){
     const  [name,setName]=useState("")
     const  [email,setEmail]=useState("")

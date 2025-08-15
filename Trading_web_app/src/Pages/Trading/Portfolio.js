@@ -12,7 +12,7 @@ export default function Portfolio() {
       console.log(localStorage.token)
       apiService.orders(localStorage.token).then((res)=>{
         console.log(res)
-        setOrders(res)
+        setOrders(res.filter((e)=> e.action === "buy"))
 
       })
 

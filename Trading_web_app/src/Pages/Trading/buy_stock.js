@@ -1,11 +1,28 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import NavBar from "../../Components/NavBar";
 import Sidebar from "../../Components/SideBar";
 import BuyStockForm from '../../Components/Form';
 import { useLocation } from 'react-router-dom';
+import * as apiService from "../../Services/Trading_api_service";
+import LiveCandlestickChart from '../../Components/candlestickChart';
 const Buy_stock = () => {
     const location = useLocation();
     const { data } = location.state || {};
+    const [chartData,setchartData]=useState([])
+    useEffect(()=>{
+        const token = localStorage.token;
+        const currentDate = new Date();
+
+        const oneWeekAgo = new Date();
+        const WeekAgo = new Date();
+        oneWeekAgo.setDate(currentDate.getDate() - 7);
+        WeekAgo.setDate(currentDate.getDate() - 4);
+        console.log(token)
+        apiService.get_stock_market_data_sticks(token,data.symbol,"12H",oneWeekAgo,WeekAgo).then((res)=>{
+            console.log(res)
+            setchartData(res)
+        })
+    },[])
    
   return (
 
@@ -32,7 +49,10 @@ const Buy_stock = () => {
         </div>
         <div className="card-body">
             <div className="chart-area">
-               
+                {chartData.length>0  ? (<LiveCandlestickChart data={chartData}></LiveCandlestickChart>) : (
+                    <div> loading .... </div>
+                )}
+            
             </div>
     
         </div>

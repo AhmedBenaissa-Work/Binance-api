@@ -16,8 +16,8 @@ export default function ConfirmAccount(){
     if (tokenFromQuery) {
       setToken(tokenFromQuery);
       console.log(tokenFromQuery)
-      localStorage.setItem('token',tokenFromQuery)
-      navigate('/transfer_funds')
+      sessionStorage.setItem('token',tokenFromQuery)
+      navigate('/dashboard')
     }
   }, [window.location.search]);
 

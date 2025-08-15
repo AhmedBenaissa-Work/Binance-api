@@ -3,6 +3,7 @@ import { Button, FormControl } from '@mui/material';
 import { InputLabel,Input,FormHelperText } from '@mui/material';
 import React, { useState ,useEffect} from 'react'
 import * as apiService from "../Services/Trading_api_service";
+import * as apiService1 from "../Services/Financial_management_service";
 import { jwtDecode } from 'jwt-decode' 
 const BuyStockForm = ({data}) => {
   
@@ -20,17 +21,25 @@ const BuyStockForm = ({data}) => {
    
  
 })
-  const Buy_stock = (row) => {
-    console.log(row)
-   
-    console.log(localStorage.token)
-    apiService.buy_stock(localStorage.token,balance,data.symbol,q).then((res)=>{
+  const Buy_stock = async() => {
+    if(q>0){
+    
+    const ut=sessionStorage.getItem("user_token")
+    const authToken=sessionStorage.getItem("token")
+    const card_id=sessionStorage.getItem("card_id")
+    await apiService1.Balance(ut).then(async(res)=>{
+     console.log(res)
+     await apiService.buy_stock(authToken,res.balance,data.symbol,q).then(async(res)=>{
       console.log(res)
+      const price=data.current*q
+      await apiService1.transaction(card_id,price.toFixed(2))
+    })  
     })
+    }
    
   };
   return (
-    <div>
+    <div> 
         <p>{data.symbol}</p>
         <p >Current Price : {data.current}</p>      
         <p >Lowest Price  : {data.low}</p> 

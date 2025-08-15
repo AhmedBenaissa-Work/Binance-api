@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { jwtDecode } from 'jwt-decode' 
 import * as apiService from "../Services/Trading_api_service";
+import * as apiService1 from "../Services/Financial_management_service";
 import { useNavigate } from 'react-router-dom';
 
 
@@ -39,15 +40,23 @@ const CustomizableTable = ({ columns, data, rowsPerPageOptions = [2, 5, 10] , ty
     console.log(address)
     console.log(balance)
     console.log(localStorage.token)
-    apiService.buy_stock(localStorage.token,balance,row.symbol,1).then((res)=>{
-      console.log(res)
-    })
+   
     navigate("/buy_stock",{ state: { data:row } })
   };
-  const Sell_stock = (row) => {
+  const Sell_stock = async(row) => {
+    const ut=sessionStorage.getItem("user_token")
+    const authToken=sessionStorage.getItem("token")
     
-    apiService.sell_stock(localStorage.token,row.symbol,1).then((res)=>{
+    await apiService.sell_stock(authToken,row.symbol,1).then(async(res)=>{
       console.log(res)
+      try{
+           const s=await apiService1.deposit(ut,row.price)
+           console.log(s)
+          
+           }catch(error){
+             alert(error)
+           }
+
     })
   };
   return (

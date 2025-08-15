@@ -41,14 +41,16 @@ export default function Sidebar(){
 
       
         <div class="sidebar-heading">
-            Addons
+        <a class="nav-link" href="/transfer_funds">
+                <i class="fas fa-fw fa-chart-area"></i>
+                <span>Fund Account</span></a>
         </div>
 
        
         
 
         <li class="nav-item">
-            <a class="nav-link" href="charts.html">
+            <a class="nav-link" href="/portfolio">
                 <i class="fas fa-fw fa-chart-area"></i>
                 <span>Portfolio</span></a>
         </li>

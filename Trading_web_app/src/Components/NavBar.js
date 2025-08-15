@@ -1,6 +1,6 @@
 import { jwtDecode } from 'jwt-decode' 
 export default function NavBar(){
-    const token = localStorage.token;
+    const token = sessionStorage.getItem("token")
     const user = jwtDecode(token)
     
     return (<div>
