@@ -44,9 +44,7 @@ const BuyStock = async(req,res)=>{
        headers: {
    
              'APCA-API-KEY-ID': process.env.api_key,
-                
              'APCA-API-SECRET-KEY': process.env.api_secret,
- 
              'Accept': 'application/json'
             
       }
@@ -420,7 +418,3 @@ const GetOrdersByUser = async(req,res)=>{
 module.exports = {
     BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders,get_access,get_and_update_order_status,getAllAssets,GetOrdersByUser
 }
-"https://data.alpaca.markets/v2/stocks/bars/latest?symbols=AAPL&feed=iex"
-//if(buyerid=0 and sellerid=0) : retrieve account id from token buyerid=accountid + buy stock case : buy == filled transfer ether to trader account of symbol tsla,aapl,intl....
-//if(buyerid!=0 and sellerid=0) sellerid=buyerid  seller is pending case : sale pending +sell stock
-//if(buyerid=0 and sellerid!=0) retrieve account id from token buyerid=accountid  case : buy == filled transfer ether from accountid to seller 

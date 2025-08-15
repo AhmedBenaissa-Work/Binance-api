@@ -1,7 +1,9 @@
 const express = require("express");
 const route = express.Router();
-const FundingController = require("../controllers/FundingController")
 
-route.post("/balance",FundingController.Get_Balance)
-
+const FintechController = require("../controllers/FintechController")
+route.post("/balance",FintechController.getUserBalance)
+route.post('/deposit',FintechController.createGpaOrder)
+route.post('/transaction',FintechController.transaction)
+route.post('/create-payment-intent',FintechController.createStripePayment)
 module.exports=route

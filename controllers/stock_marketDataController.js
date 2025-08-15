@@ -87,7 +87,13 @@ const sticks = async (req,res)=>{
 
   );
   console.log(response)
-  res.send(response.data)}
+  const data = []
+  for (let i = 0; i < response.data.bars.length; i++) {
+    e=response.data.bars[i]
+    y=[e.h,e.l,e.c,e.o,e.n]
+    data.push({"x":new Date(e.t),"y":y})
+  }
+  res.send(data)}
   catch(error){
     console.log(error)
     res.send(error)
