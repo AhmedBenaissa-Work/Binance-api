@@ -18,7 +18,20 @@ const AccountSchema = new Schema({
         ref : "wallets",
         type:Schema.Types.ObjectId,
         required : true 
+    },
+    sandbox_id : {
+       
+        type:String 
+    },
+    card_id : {
+       
+        type:String 
+    },
+    stripe_id : {
+       
+        type:String 
     }
+
 });
 const Account = mongoose.model("accounts", AccountSchema);
 module.exports = Account;
