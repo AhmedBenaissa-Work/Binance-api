@@ -3,22 +3,11 @@ const env = require("dotenv");
 env.config();
 // Set up your API credentials
 const order = require("../Models/order")
-const p2p = require("../Models/P2Ptransaction")
+
 // Check account information
 const axios = require('axios');
-const { resolveMx } = require('dns');
-const get_access = async(req,res) =>{
-     const crypto = require('crypto');
-     const secret = crypto.randomBytes(64).toString('hex');
-     const jwt = require("jsonwebtoken");
-     const token = jwt.sign({
-          id: req.body.account_id,
-          address : req.body.wallet_address,
-          balance : req.body.wallet_balance
-           
-        }, secret, { expiresIn: '1h' });
-     res.send(token)
-}
+
+
 const BuyStock = async(req,res)=>{
   const payload  = {
     method: 'POST',
@@ -54,11 +43,11 @@ const BuyStock = async(req,res)=>{
          
   console.log('Latest trade data:', response.data.trade.p);
   const latestTrade=response.data.trade.p
-  secretKey = ""
+  secretKey = process.env.secret_key
   const jwt = require("jsonwebtoken");
   token_data=jwt.decode(authToken,secretKey)
-   
-  if(token_data != undefined && req.body.balance > response.data.trade.p) //test purpose for now add verify account record in DB later
+  
+  if((token_data != undefined || token_data.toString().length()>0) && req.body.balance > response.data.trade.p) //test purpose for now add verify account record in DB later
   {
      axios.request(payload).then( async (response) => {
       console.log(response.status)
@@ -133,7 +122,7 @@ const SellStock= async (req,res)=>{
         }
       };
       const authToken = req.headers.authorization;    
-      secretKey = ""
+      secretKey = process.env.secret_key
   const jwt = require("jsonwebtoken");
   token_data=jwt.decode(authToken,secretKey)
  // console.log(token_data.balance)
@@ -315,7 +304,14 @@ const getOrders =  async(req,res)=>{
     }
 }
 const checkBalanceAfterSale = async(req,res)=>{
+  const jwt = require("jsonwebtoken");
+  const authToken = req.headers.authorization;
+  secretKey=process.env.secret_key
+  token_data=jwt.decode(authToken,secretKey)
   
+  if(token_data == undefined  ) //test purpose for now add verify account record in DB later
+  {res.status(400).send(`Unauthorized`);}
+  else{
   url=`https://paper-api.alpaca.markets/v2/orders?status=all&symbols=${req.body.symbol}`
   const response = await axios.get(url, {
     headers: {
@@ -366,11 +362,11 @@ const response2 = await axios.get(url2, {
           
             res.status(400).send(`Transaction failed: ${error.message}`);
           
-    }
+    }}
 }
 const getAllAssets = async(req,res)=>{
   const authToken = req.headers.authorization;
-  secretKey=''
+  secretKey=process.env.secret_key
   const jwt = require("jsonwebtoken");
   
   token_data=jwt.decode(authToken,secretKey)
@@ -402,7 +398,7 @@ const getAllAssets = async(req,res)=>{
 const GetOrdersByUser = async(req,res)=>{
   try{
   const authToken = req.headers.authorization;
-  secretKey=''
+  secretKey=process.env.secret_key
   const jwt = require("jsonwebtoken");
   
   token_data=jwt.decode(authToken,secretKey)
@@ -415,6 +411,7 @@ const GetOrdersByUser = async(req,res)=>{
   }
 }
 
+
 module.exports = {
-    BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders,get_access,get_and_update_order_status,getAllAssets,GetOrdersByUser
+    BuyStock,SellStock,getOrderDetails,checkBalanceAfterSale,getOrders,get_and_update_order_status,getAllAssets,GetOrdersByUser
 }
